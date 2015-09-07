@@ -4,20 +4,19 @@ $(document).ready(function() {
     stockList.on("child_added", function(snapshot) {
         var stock = snapshot.val();
         var stockID = snapshot.key();
-        var startDate = stock.startDate.split(" ")[0];
-        var endDate = stock.endDate.split(" ")[0];
-        var stockTicker = stock.stockName;
 
         $("#container").append("<button id='stock'>" + stockID + "</button>");
         $("#container button#stock:last").click(function() {
-            $.ajax({
-                contentType: "json",
-                url: "/get_historical/" + stockTicker + "/" + startDate + "/" + endDate,
-                success: function(data){
-                    var lastDayClosing = parseInt(data["close_last_day"]);
-                    var firstDayClosing = parseInt(data["close_first_day"]);
-                    alert(lastDayClosing);
-                }
+            var percentage = function(startPrice, endPrice) {
+                var a = endPrice / startPrice;
+                var b = a - 1;
+                var c = b * 100;
+                return c;
+            };
+
+            var result = percentage(stock.endPrice, stock.startPrice);
+            stockList.child(stockID).update({
+                "result": result,
             });
         });
     });
