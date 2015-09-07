@@ -1,0 +1,33 @@
+doctype html
+head
+    script(src="//code.jquery.com/jquery-1.11.3.min.js")
+    script(src="//code.jquery.com/jquery-migrate-1.2.1.min.js")
+    script(src="https://cdn.firebase.com/js/client/2.2.9/firebase.js")
+body
+    h1 Hello
+    #container
+    script(type="text/javascript").
+        var stockList = new Firebase("https://activist-algo.firebaseio.com/stockList");
+
+        $(document).ready(function() {
+            stockList.on("child_added", function(snapshot) {
+                var stock = snapshot.val();
+                var stockID = snapshot.key();
+                var startDate = stock.startDate.split(" ")[0];
+                var endDate = stock.endDate.split(" ")[0];
+                var stockTicker = stock.stockName;
+
+                $("#container").append("<button id='stock'>" + stockID + "</button>");
+                $("#container button#stock:last").click(function() {
+                    $.ajax({
+                        contentType: "json",
+                        url: "/get_historical/" + stockTicker + "/" + startDate + "/" + endDate,
+                        success: function(data){
+                            var lastDayClosing = parseInt(data["close_last_day"]);
+                            var firstDayClosing = parseInt(data["close_first_day"]);
+                            alert(lastDayClosing);
+                        }
+                    });
+                });
+            });
+        });
